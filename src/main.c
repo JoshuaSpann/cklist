@@ -13,6 +13,7 @@
 #define APP_NAME "cklist"
 #define APP_DESCRIPTION "The simple checklist manager"
 #define APP_ROOT_DIR ".simulation-checklist/"
+//#define APP_ROOT_DIR ".cklist/"
 #define VERSION "1.0"
 
 //TODO - int check_if_directory_exists(char *);
@@ -22,6 +23,8 @@ int create_checklist_item(char *, char *);
 int create_app_directory();
 void delete_checklist(char *);
 void delete_checklist_item(char *, char *);
+int edit_checklist(char *, char*);
+int edit_checklist_item(char *, char *, char*);
 char *get_app_directory();
 char *get_home_directory();
 void list_checklists();
@@ -69,6 +72,28 @@ int main(int argsCount, char **args)
 				break;
 			}
 			delete_checklist_item(args[i+1], args[i+2]);
+		}
+
+		if ((strcmp(arg, "--edit") == TRUE || strcmp(arg, "-e") == TRUE)) {
+			if (args[i+1] == NULL || args[i+2] == NULL) {
+				// Need at least a checklist or checklist+item
+				// Need the new checklist name or the old item name and the new item name
+				printf("Error: Too few args. You need at least an old and new checklist name!\n");
+				break;
+			}
+			if (args[i+3] == NULL) {
+				printf("Changing checklist name from \"%s\" to \"%s\"...  ", args[i+1], args[i+2]);
+				// Assume the user is changing the checklist name, args[i+2] is the new list name
+				int err = edit_checklist(args[i+1], args[i+2]);
+				if (err) break;
+				printf("Done\n");
+				break;
+			}
+			printf("Changing item name from \"%s\" to \"%s\" in checklist \"%s\"...  ", args[i+2], args[i+3], args[i+1]);
+			// Assume user is changing item name, args[i+2] is the old name, args[i+3] is the new name
+			int err = edit_checklist_item(args[i+1], args[i+2], args[i+3]);
+			if (err) break;
+			printf("Done\n");
 		}
 
 		if (strcmp(arg, "--list") == TRUE || strcmp(arg, "-l") == TRUE) {
@@ -223,8 +248,19 @@ void delete_checklist_item(char *listName, char *itemName)
 		return;
 	}
 
-	//printf("\"%s\" successfully removed from the \"%s\" checklist\n", itemName, listName);
 	printf("Done\n");
+}
+
+int edit_checklist(char *oldListName, char *newListName)
+{
+	int errorCode = 0;
+	return errorCode;
+}
+
+int edit_checklist_item(char *listName, char *oldItemName, char *newItemName)
+{
+	int errorCode = 0;
+	return errorCode;
 }
 
 char *get_app_directory()
