@@ -14,7 +14,7 @@
 #define APP_DESCRIPTION "The simple checklist manager"
 #define APP_ROOT_DIR ".simulation-checklist/"
 //#define APP_ROOT_DIR ".cklist/"
-#define VERSION "1.0"
+#define VERSION "1.2"
 
 int check_if_directory_exists(char *);
 int check_if_file_exists(char *);
@@ -120,9 +120,6 @@ int main(int argsCount, char **args)
 
 		if (strcmp(arg, "--init") == TRUE)
 			create_app_directory();
-
-		if (strcmp(arg, "-t") == TRUE)
-			get_app_directory();
 
 		if (strcmp(arg, "--version") == TRUE || strcmp(arg, "-v") == TRUE)
 			print_version_info();
