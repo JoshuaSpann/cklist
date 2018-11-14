@@ -7,7 +7,8 @@
 ## Use
 ### Arguments
 Arguments are raw text and affect how some options are interpreted. 
-Generally, options are in the order of <checklist> and <item in checklist>.
+Generally, options are in the order of <checklist> and <item in checklist>. 
+Currently there is no support for multiple arguments for option/flag.
 
 ### Options
 The options can be entered by the full word, with spaces repaced by `-` dashes, or the shorthand version (first letter) of that option. Some options may have a different shorthand version than the name of the full option name.
@@ -48,7 +49,7 @@ The options can be entered by the full word, with spaces repaced by `-` dashes, 
   - `cklist -d my-other-checklist`
   - `cklist -d my-checklist an-item`
 
-- [ ] `e` or `edit`
+- [x] `e` or `edit`
  - Edits a checklist's or an item's name
  - To edit a checklist name, supply 2 arguments, where the first is the current name and the second is the new name
  - To edit an item name, supply 3 args, the first is the checklist, the second is the current item name, the last is the new item name

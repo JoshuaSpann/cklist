@@ -12,9 +12,8 @@
 #define FALSE 1
 #define APP_NAME "cklist"
 #define APP_DESCRIPTION "The simple checklist manager"
-#define APP_ROOT_DIR ".simulation-checklist/"
-//#define APP_ROOT_DIR ".cklist/"
-#define VERSION "1.2"
+#define APP_ROOT_DIR ".cklist/"
+#define VERSION "1.3"
 
 int check_if_directory_exists(char *);
 int check_if_file_exists(char *);
@@ -54,14 +53,17 @@ int main(int argsCount, char **args)
 	for (int i = 1; i < argsCount; i++) {
 		char *arg = args[i];
 
-		if (strcmp(arg, "--help") == TRUE || strcmp(arg, "-h") == TRUE)
+		if (strcmp(arg, "--help") == TRUE || strcmp(arg, "-h") == TRUE) {
 			print_help();
+			break;
+		}
 
 		if ((strcmp(arg, "--create") == TRUE || strcmp(arg, "-c") == TRUE) && args[i+1] != NULL) {
 			printf("Creating checklist %s...  ", args[i+1]);
 			int err = create_checklist(args[i+1]);
 			if (err) break;
 			printf("Done\n");
+			break;
 		}
 
 		if ((strcmp(arg, "--add") == TRUE || strcmp(arg, "-a") == TRUE)) {
@@ -74,6 +76,7 @@ int main(int argsCount, char **args)
 				break;
 			}
 			create_checklist_item(args[i+1], args[i+2]);
+			break;
 		}
 
 		if ((strcmp(arg, "--delete") == TRUE || strcmp(arg, "-d") == TRUE)) {
@@ -82,10 +85,15 @@ int main(int argsCount, char **args)
 				break;
 			}
 			if (args[i+2] == NULL) {
+				printf("Deleting checklist: %s...  ", args[i+1]);
 				delete_checklist(args[i+1]);
+				printf("Done\n");
 				break;
 			}
+			printf("Deleting %s from %s...  ", args[i+2], args[i+1]);
 			delete_checklist_item(args[i+1], args[i+2]);
+			printf("Done\n");
+			break;
 		}
 
 		if ((strcmp(arg, "--edit") == TRUE || strcmp(arg, "-e") == TRUE)) {
@@ -108,6 +116,7 @@ int main(int argsCount, char **args)
 			int err = edit_checklist_item(args[i+1], args[i+2], args[i+3]);
 			if (err) break;
 			printf("Done\n");
+			break;
 		}
 
 		if (strcmp(arg, "--list") == TRUE || strcmp(arg, "-l") == TRUE) {
@@ -116,13 +125,18 @@ int main(int argsCount, char **args)
 				continue;
 			}
 			list_checklists();
+			break;
 		}
 
-		if (strcmp(arg, "--init") == TRUE)
+		if (strcmp(arg, "--init") == TRUE) {
 			create_app_directory();
+			break;
+		}
 
-		if (strcmp(arg, "--version") == TRUE || strcmp(arg, "-v") == TRUE)
+		if (strcmp(arg, "--version") == TRUE || strcmp(arg, "-v") == TRUE) {
 			print_version_info();
+			break;
+		}
 	}
 
 	printf("\n");
@@ -135,13 +149,14 @@ int main(int argsCount, char **args)
 
 int check_if_directory_exists(char *dirName)
 {
-	int errorCode = 0;
-	return errorCode;
+	return check_if_file_exists(dirName);
 }
 
-int check_if_file_exists(char *fileName)
+int check_if_file_exists(char *filePath)
 {
 	int errorCode = 0;
+	struct stat buffer;
+	errorCode = (stat (filePath, &buffer) == 0);
 	return errorCode;
 }
 
@@ -156,9 +171,8 @@ int create_app_directory()
 
 	strcat(appDirectory, appDir);
 
-	//TODO
-	//errorCode = check_if_directory_exists(listDirectory);
-	//if (errorCode == -2) return errorCode;
+	errorCode = check_if_directory_exists(appDirectory);
+	if (errorCode) return errorCode;
 
 	printf("Creating App Directory...  ");
 
@@ -225,8 +239,6 @@ int create_checklist_item(char *listName, char *itemName)
 
 void delete_checklist(char *listName)
 {
-	printf("Deleting checklist: %s...  ", listName);
-
 	char listPath[200] = "";
 	strcat(listPath, get_app_directory());
 	strcat(listPath, listName);
@@ -254,14 +266,10 @@ void delete_checklist(char *listName)
 
 	(void) closedir(targetDir);
 	remove(listPath);
-
-	printf("Done\n");
 }
 
 void delete_checklist_item(char *listName, char *itemName)
 {
-	printf("Deleting %s from %s...  ", itemName, listName);
-
 	char listPath[200] = "";
 	strcat(listPath, get_app_directory());
 	strcat(listPath, listName);
@@ -275,8 +283,6 @@ void delete_checklist_item(char *listName, char *itemName)
 		printf("Error: Could not remove item \"%s\" from the \"%s\" checklist. Exiting\n", itemName, listName);
 		return;
 	}
-
-	printf("Done\n");
 }
 
 
@@ -285,12 +291,52 @@ void delete_checklist_item(char *listName, char *itemName)
 int edit_checklist(char *oldListName, char *newListName)
 {
 	int errorCode = 0;
+	char oldListPath[200] = "", newListPath[200] = "";
+
+	strcat(oldListPath, get_app_directory());
+	strcat(oldListPath, oldListName);
+
+	strcat(newListPath, get_app_directory());
+	strcat(newListPath, newListName);
+
+	int oldListPathErrorCode = check_if_directory_exists(oldListPath);
+	int newListPathErrorCode = check_if_directory_exists(newListPath);
+
+	if (oldListPathErrorCode == 0 || newListPathErrorCode != 0) {
+		return errorCode = 1;
+	}
+
+	// Move oldDir to newDir
+	rename(oldListPath, newListPath);
+
 	return errorCode;
 }
 
 int edit_checklist_item(char *listName, char *oldItemName, char *newItemName)
 {
 	int errorCode = 0;
+	char oldItemPath[200] = "", newItemPath[200] = "";
+
+	strcat(oldItemPath, get_app_directory());
+	strcat(oldItemPath, listName);
+	strcat(oldItemPath, "/");
+	strcat(oldItemPath, oldItemName);
+
+	strcat(newItemPath, get_app_directory());
+	strcat(newItemPath, listName);
+	strcat(newItemPath, "/");
+	strcat(newItemPath, newItemName);
+
+	int oldItemPathErrorCode = check_if_file_exists(oldItemPath);
+	int newItemPathErrorCode = check_if_file_exists(newItemPath);
+
+	if (oldItemPathErrorCode == 0 || newItemPathErrorCode != 0) {
+		return errorCode = 1;
+	}
+
+	// Move oldFile to newFile
+	rename(oldItemPath, newItemPath);
+
 	return errorCode;
 }
 
