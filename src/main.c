@@ -16,22 +16,31 @@
 //#define APP_ROOT_DIR ".cklist/"
 #define VERSION "1.0"
 
-//TODO - int check_if_directory_exists(char *);
-//TODO - int check_if_file_exists(char *);
+int check_if_directory_exists(char *);
+int check_if_file_exists(char *);
+
 int create_checklist(char *);
 int create_checklist_item(char *, char *);
 int create_app_directory();
+
 void delete_checklist(char *);
 void delete_checklist_item(char *, char *);
+
 int edit_checklist(char *, char*);
 int edit_checklist_item(char *, char *, char*);
+
 char *get_app_directory();
 char *get_home_directory();
+
 void list_checklists();
 void list_checklist_items(char *);
 void list_directory_contents(char *, char *);
+
 void print_help();
 void print_version_info();
+
+
+/********  ARGUMENT HANDLING & APP ENTRY POINT  ********/
 
 int main(int argsCount, char **args)
 {
@@ -47,8 +56,13 @@ int main(int argsCount, char **args)
 
 		if (strcmp(arg, "--help") == TRUE || strcmp(arg, "-h") == TRUE)
 			print_help();
-		if ((strcmp(arg, "--create") == TRUE || strcmp(arg, "-c") == TRUE) && args[i+1] != NULL)
-			create_checklist(args[i+1]);
+
+		if ((strcmp(arg, "--create") == TRUE || strcmp(arg, "-c") == TRUE) && args[i+1] != NULL) {
+			printf("Creating checklist %s...  ", args[i+1]);
+			int err = create_checklist(args[i+1]);
+			if (err) break;
+			printf("Done\n");
+		}
 
 		if ((strcmp(arg, "--add") == TRUE || strcmp(arg, "-a") == TRUE)) {
 			if (args[i+1] == NULL) {
@@ -106,8 +120,10 @@ int main(int argsCount, char **args)
 
 		if (strcmp(arg, "--init") == TRUE)
 			create_app_directory();
+
 		if (strcmp(arg, "-t") == TRUE)
 			get_app_directory();
+
 		if (strcmp(arg, "--version") == TRUE || strcmp(arg, "-v") == TRUE)
 			print_version_info();
 	}
@@ -117,8 +133,23 @@ int main(int argsCount, char **args)
 	return 0;
 }
 
-//TODO - int check_if_directory_exists(char *dirName)
-//TODO - int check_if_file_exists(char *);
+
+/********  CHECKING / LOOKUP FUNCTIONS  ********/
+
+int check_if_directory_exists(char *dirName)
+{
+	int errorCode = 0;
+	return errorCode;
+}
+
+int check_if_file_exists(char *fileName)
+{
+	int errorCode = 0;
+	return errorCode;
+}
+
+
+/********  CREATE FUNCTIONS  ********/
 
 int create_app_directory()
 {
@@ -165,7 +196,6 @@ int create_checklist(char *listName)
 	//errorCode = check_if_directory_exists(listDirectory);
 	//if (errorCode == -2) return errorCode;
 
-	printf("Creating checklist %s...  ", listName);
 	// TODO: Fix this with umask() to uid then reset to pid?
 	errorCode = mkdir(listDirectory, 0777);
 
@@ -174,9 +204,7 @@ int create_checklist(char *listName)
 		return errorCode;
 	}
 
-	printf("Done\n");
-
-	return 0;
+	return errorCode;
 }
 
 int create_checklist_item(char *listName, char *itemName)
@@ -194,6 +222,9 @@ int create_checklist_item(char *listName, char *itemName)
 	printf("\"%s\" added to the \"%s\" checklist\n", itemName, listName);
 	return 0;
 }
+
+
+/********  DELETE FUNCTIONS  ********/
 
 void delete_checklist(char *listName)
 {
@@ -251,6 +282,9 @@ void delete_checklist_item(char *listName, char *itemName)
 	printf("Done\n");
 }
 
+
+/********  EDIT FUNCTIONS  ********/
+
 int edit_checklist(char *oldListName, char *newListName)
 {
 	int errorCode = 0;
@@ -262,6 +296,9 @@ int edit_checklist_item(char *listName, char *oldItemName, char *newItemName)
 	int errorCode = 0;
 	return errorCode;
 }
+
+
+/********  DIRECTORY BUILDER FUNCTIONS  ********/
 
 char *get_app_directory()
 {
@@ -279,6 +316,9 @@ char *get_home_directory()
 	char *homeDir = strcat(pw->pw_dir, "/");
 	return homeDir;
 }
+
+
+/********  LISTING FUNCTIONS  ********/
 
 void list_checklists()
 {
@@ -328,6 +368,9 @@ void list_directory_contents(char *targetDirectoryPath, char *lineDelimiter)
 
 	printf("Error: Could not find or open the checklist under \"%s\". Exiting\n", directoryPath);
 }
+
+
+/********  MESSAGES & INFO FUNCTIONS  ********/
 
 void print_help()
 {
